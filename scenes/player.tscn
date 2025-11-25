@@ -1,0 +1,29 @@
+[gd_scene load_steps=7 format=3 uid="uid://bd7kff53flqov"]
+
+[ext_resource type="Script" uid="uid://disdr7hcaeisv" path="res://scripts/player.gd" id="1_g2els"]
+[ext_resource type="Texture2D" uid="uid://c02a0hsrin7ws" path="res://assets/default.png" id="2_g2els"]
+[ext_resource type="AudioStream" uid="uid://cjrv0cnvl87v1" path="res://sfx/WHOOSH_ARM_SWING_01_WIDE.wav" id="2_qlg0r"]
+[ext_resource type="AudioStream" uid="uid://cyphtrtjwynwr" path="res://sfx/PUNCH_DESIGNED_HEAVY_86.wav" id="3_tuyoq"]
+[ext_resource type="AudioStream" uid="uid://3mbbixloleup" path="res://sfx/Gore Splat Stab Poke 03.wav" id="4_fjrip"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_g2els"]
+radius = 16.0
+height = 32.0
+
+[node name="Player" type="CharacterBody2D"]
+collision_mask = 2
+script = ExtResource("1_g2els")
+attack_duration = 0.15
+attack_range = 48.0
+attack_offset = 50.0
+sfx_attack = ExtResource("2_qlg0r")
+sfx_hit = ExtResource("3_tuyoq")
+sfx_hurt = ExtResource("4_fjrip")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_g2els")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CapsuleShape2D_g2els")
+
+[node name="Camera2D" type="Camera2D" parent="."]

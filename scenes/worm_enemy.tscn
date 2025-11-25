@@ -1,0 +1,10 @@
+[gd_scene load_steps=2 format=3 uid="uid://e8475puax3vh"]
+
+[ext_resource type="Script" uid="uid://f8ptw33flxlp" path="res://scripts/worm_enemy.gd" id="1_4xf7m"]
+
+[node name="WormEnemy" type="Node2D"]
+script = ExtResource("1_4xf7m")
+speed = 150.0
+length = 1
+cell_damage = 5
+cell_health = 10

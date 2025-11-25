@@ -1,0 +1,19 @@
+[gd_scene load_steps=4 format=3 uid="uid://bupu1jgf34k4j"]
+
+[ext_resource type="Script" uid="uid://bnhp2w81lc2tm" path="res://scripts/fast_enemy.gd" id="1_7dcje"]
+[ext_resource type="Texture2D" uid="uid://cfvd2e0ds0ixc" path="res://icon.svg" id="2_lpnxe"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_48uji"]
+radius = 12.0
+height = 24.0
+
+[node name="FastEnemy" type="CharacterBody2D"]
+collision_layer = 2
+script = ExtResource("1_7dcje")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+scale = Vector2(0.2, 0.2)
+texture = ExtResource("2_lpnxe")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CapsuleShape2D_48uji")

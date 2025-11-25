@@ -1,0 +1,30 @@
+[gd_scene load_steps=5 format=3 uid="uid://mis8dpqo6hc4"]
+
+[ext_resource type="Script" uid="uid://qqymiut5tlis" path="res://scripts/enemy_cell.gd" id="1_xruaa"]
+[ext_resource type="Texture2D" uid="uid://cfvd2e0ds0ixc" path="res://icon.svg" id="2_3hnuh"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_odtde"]
+radius = 25.0
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_xl7sj"]
+radius = 25.0
+height = 50.0
+
+[node name="EnemyCell" type="Area2D"]
+script = ExtResource("1_xruaa")
+health = 30
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+modulate = Color(1, 0, 0, 1)
+scale = Vector2(0.4, 0.4)
+texture = ExtResource("2_3hnuh")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_odtde")
+
+[node name="WallBody" type="StaticBody2D" parent="."]
+collision_layer = 2
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WallBody"]
+shape = SubResource("CapsuleShape2D_xl7sj")
