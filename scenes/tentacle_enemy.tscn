@@ -1,0 +1,13 @@
+[gd_scene load_steps=5 format=3 uid="uid://dxtuuu5p6dmna"]
+
+[ext_resource type="Script" uid="uid://m5q8mpup6363" path="res://scripts/tentacle_ai.gd" id="1_r7cbu"]
+[ext_resource type="PackedScene" uid="uid://ba57w12maviva" path="res://scenes/tentacle.tscn" id="2_h436o"]
+[ext_resource type="AudioStream" uid="uid://b5xekaeotu5jb" path="res://sfx/Audio Jack Noise Triplet_01.wav" id="2_r5xbn"]
+[ext_resource type="AudioStream" uid="uid://bcxd7q8ler8c2" path="res://sfx/PUNCH_INTENSE_HEAVY_03.wav" id="3_kco5d"]
+
+[node name="TentacleEnemy" type="Node2D"]
+script = ExtResource("1_r7cbu")
+sfx_telegraph = ExtResource("2_r5xbn")
+sfx_attack = ExtResource("3_kco5d")
+
+[node name="TentacleBody" parent="." instance=ExtResource("2_h436o")]

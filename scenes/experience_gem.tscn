@@ -1,0 +1,16 @@
+[gd_scene load_steps=4 format=3 uid="uid://8478shn6lyvm"]
+
+[ext_resource type="Script" uid="uid://utqmsgnxnl3u" path="res://scripts/experience_gem.gd" id="1_6j5do"]
+[ext_resource type="Texture2D" uid="uid://d7kgc0avpx1g" path="res://assets/gem.png" id="2_3udao"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hp7xb"]
+size = Vector2(8, 8)
+
+[node name="ExperienceGem" type="Area2D"]
+script = ExtResource("1_6j5do")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_3udao")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_hp7xb")

@@ -1,27 +1,19 @@
-[gd_scene load_steps=7 format=3 uid="uid://dwej7bkquja7q"]
+[gd_scene load_steps=6 format=3 uid="uid://dwej7bkquja7q"]
 
 [ext_resource type="PackedScene" uid="uid://bd7kff53flqov" path="res://scenes/player.tscn" id="1_pwy2h"]
-[ext_resource type="PackedScene" uid="uid://ba57w12maviva" path="res://scenes/tentacle.tscn" id="2_morgh"]
-[ext_resource type="Script" uid="uid://kb7g83r22wl4" path="res://scripts/boss_controller.gd" id="2_pou1h"]
-[ext_resource type="AudioStream" uid="uid://b5xekaeotu5jb" path="res://sfx/Audio Jack Noise Triplet_01.wav" id="3_1sdb2"]
+[ext_resource type="PackedScene" uid="uid://8478shn6lyvm" path="res://scenes/experience_gem.tscn" id="3_morgh"]
+[ext_resource type="PackedScene" uid="uid://dxtuuu5p6dmna" path="res://scenes/tentacle_enemy.tscn" id="3_pou1h"]
 [ext_resource type="PackedScene" uid="uid://e8475puax3vh" path="res://scenes/worm_enemy.tscn" id="3_yce1c"]
-[ext_resource type="AudioStream" uid="uid://bcxd7q8ler8c2" path="res://sfx/PUNCH_INTENSE_HEAVY_03.wav" id="4_yce1c"]
+[ext_resource type="Script" uid="uid://d371yfbg13lwi" path="res://scripts/game_manager.gd" id="7_twta3"]
 
 [node name="GameArena" type="Node2D"]
 
 [node name="Player" parent="." instance=ExtResource("1_pwy2h")]
 position = Vector2(234, 434)
 
-[node name="BossController" type="Node" parent="."]
-script = ExtResource("2_pou1h")
-fast_enemy_scene = ExtResource("3_yce1c")
-spawn_interval = 2.0
-spawn_distance = 700.0
-sfx_telegraph = ExtResource("3_1sdb2")
-sfx_attack = ExtResource("4_yce1c")
-
-[node name="Tentacle_Left" parent="BossController" instance=ExtResource("2_morgh")]
-position = Vector2(-214, 287)
-
-[node name="Tentacle_Right" parent="BossController" instance=ExtResource("2_morgh")]
-position = Vector2(661, 294)
+[node name="GameManager" type="Node2D" parent="." node_paths=PackedStringArray("player")]
+script = ExtResource("7_twta3")
+player = NodePath("../Player")
+xp_gem_scene = ExtResource("3_morgh")
+worm_scene = ExtResource("3_yce1c")
+tentacle_scene = ExtResource("3_pou1h")

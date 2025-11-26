@@ -61,7 +61,7 @@ func _ready():
 		segment_root.global_position = solve_position_at_distance(target_distance)
 	
 	# Começa seguro (Dano desligado)
-	set_damage_active(false)
+	#set_damage_active(false)
 
 func _spawn_cluster(parent_bone: Node2D, count: int, segment_index: int):
 	var start_x = -(count - 1) * (cell_spacing_width / 2.0)

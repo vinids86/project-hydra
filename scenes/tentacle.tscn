@@ -12,3 +12,4 @@ script = ExtResource("1_spd53")
 thickness_curve = SubResource("Curve_spd53")
 cell_health = 30
 idle_wave_speed = 20.0
+body_alignment_speed = 3.0
