@@ -1,8 +1,11 @@
 extends CharacterBody2D
 
+signal health_changed(current, max) # Sinal novo para a HUD
+
 # --- CONFIGURAÇÕES GERAIS ---
 @export var speed: float = 400.0
-@export var health: int = 100
+@export var max_health: int = 100 # Novo: Define o máximo
+@onready var health: int = max_health # Atual começa igual ao máximo
 @export var friction: float = 15.0 
 
 # --- DASH ---
@@ -24,34 +27,37 @@ extends CharacterBody2D
 @export var invulnerability_duration: float = 1.0 
 @export var shake_decay: float = 10.0 
 
-# --- HIT STOP (SLOW MOTION) ---
+# --- HIT STOP ---
 @export var hit_stop_scale: float = 0.05 
 @export var hit_stop_duration_hit: float = 0.1 
 @export var hit_stop_duration_hurt: float = 0.3 
 
-# --- ÁUDIO (NOVO) ---
+# --- ÁUDIO ---
 @export_group("Audio FX")
-@export var sfx_attack: AudioStream # Som do "Whoosh" da espada
-@export var sfx_dash: AudioStream   # Som de vento/impulso
-@export var sfx_hit: AudioStream    # Som de impacto molhado/carne
-@export var sfx_hurt: AudioStream   # Som de dor/pancada no player
+@export var sfx_attack: AudioStream 
+@export var sfx_dash: AudioStream   
+@export var sfx_hit: AudioStream    
+@export var sfx_hurt: AudioStream   
 
 # --- ESTADOS ---
 enum State { MOVE, ATTACK, DASH, STAGGER }
 var current_state = State.MOVE
 
-# Variáveis de Controle
 var is_invulnerable: bool = false
 var dash_direction: Vector2 = Vector2.ZERO
 var last_faced_direction: Vector2 = Vector2.RIGHT 
 
-# Screen Shake
+# Screen Shake & Camera
 var current_shake_strength: float = 0.0
 @onready var camera = $Camera2D 
 
 # Debug
 var debug_attack_active: bool = false
 var attack_visual_angle: float = 0.0 
+
+func _ready():
+	# Avisa a HUD assim que o jogo começa
+	health_changed.emit(health, max_health)
 
 func _process(delta):
 	if current_shake_strength > 0:
@@ -75,7 +81,7 @@ func _physics_process(delta):
 	
 	queue_redraw()
 
-# --- ESTADO 1: MOVIMENTO LIVRE ---
+# --- ESTADO 1: MOVIMENTO ---
 func state_move(delta):
 	var input_vector = Input.get_vector("move_left", "move_right", "move_up", "move_down")
 	
@@ -109,12 +115,9 @@ func start_attack():
 	attack_dir = Vector2(cos(snapped_angle), sin(snapped_angle))
 	
 	attack_visual_angle = snapped_angle
-	
 	velocity = attack_dir * attack_impulse
 	
-	# TOCA SOM DE ATAQUE (Antes de saber se acertou)
 	play_sfx(sfx_attack, 0.9, 1.1)
-	
 	perform_hitbox_check(attack_dir)
 	
 	debug_attack_active = true
@@ -161,7 +164,6 @@ func perform_hitbox_check(dir: Vector2):
 	if hit_something:
 		apply_shake(5.0)
 		apply_hit_stop(hit_stop_duration_hit)
-		# TOCA SOM DE IMPACTO (Crunch)
 		play_sfx(sfx_hit, 0.8, 1.0)
 
 # --- ESTADO 3: DASH ---
@@ -171,7 +173,6 @@ func start_dash(dir):
 	is_invulnerable = true 
 	modulate.a = 0.5
 	
-	# TOCA SOM DE DASH
 	play_sfx(sfx_dash, 1.0, 1.2)
 	
 	await get_tree().create_timer(dash_duration).timeout
@@ -199,9 +200,10 @@ func take_damage(amount):
 	health -= amount
 	print("Dano! Vida: ", health)
 	
-	# TOCA SOM DE DOR
-	play_sfx(sfx_hurt, 0.8, 1.2)
+	# Atualiza a HUD
+	health_changed.emit(health, max_health)
 	
+	play_sfx(sfx_hurt, 0.8, 1.2)
 	apply_shake(20.0)
 	apply_hit_stop(hit_stop_duration_hurt)
 	
@@ -232,23 +234,15 @@ func apply_hit_stop(duration: float):
 	await get_tree().create_timer(duration, true, false, true).timeout
 	Engine.time_scale = 1.0
 
-# --- SISTEMA DE SOM DINÂMICO ---
 func play_sfx(stream: AudioStream, min_pitch: float = 0.9, max_pitch: float = 1.1):
 	if not stream: return
-	
-	# Cria um player temporário para permitir sobreposição de sons
 	var audio_player = AudioStreamPlayer.new()
 	audio_player.stream = stream
-	audio_player.pitch_scale = randf_range(min_pitch, max_pitch) # Variação para soar orgânico
-	
-	# Adiciona à cena atual (não ao player, para o som não cortar se o player morrer/sumir)
+	audio_player.pitch_scale = randf_range(min_pitch, max_pitch)
 	get_tree().current_scene.add_child(audio_player)
 	audio_player.play()
-	
-	# Auto-destruição quando acabar o som
 	audio_player.finished.connect(audio_player.queue_free)
 
-# --- VISUAIS ---
 func _draw():
 	if current_state == State.MOVE:
 		var pointer_end = last_faced_direction.normalized() * 40

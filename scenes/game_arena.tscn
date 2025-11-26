@@ -1,9 +1,12 @@
-[gd_scene load_steps=6 format=3 uid="uid://dwej7bkquja7q"]
+[gd_scene load_steps=9 format=3 uid="uid://dwej7bkquja7q"]
 
 [ext_resource type="PackedScene" uid="uid://bd7kff53flqov" path="res://scenes/player.tscn" id="1_pwy2h"]
 [ext_resource type="PackedScene" uid="uid://8478shn6lyvm" path="res://scenes/experience_gem.tscn" id="3_morgh"]
 [ext_resource type="PackedScene" uid="uid://dxtuuu5p6dmna" path="res://scenes/tentacle_enemy.tscn" id="3_pou1h"]
 [ext_resource type="PackedScene" uid="uid://e8475puax3vh" path="res://scenes/worm_enemy.tscn" id="3_yce1c"]
+[ext_resource type="AudioStream" uid="uid://cl6b1r0pcyq4o" path="res://sfx/Gem.wav" id="6_21h33"]
+[ext_resource type="PackedScene" uid="uid://ccj0lf23epxjs" path="res://scenes/hud.tscn" id="6_yce1c"]
+[ext_resource type="AudioStream" uid="uid://bhg6ghwe66vwu" path="res://sfx/LevelUp.wav" id="7_rsku2"]
 [ext_resource type="Script" uid="uid://d371yfbg13lwi" path="res://scripts/game_manager.gd" id="7_twta3"]
 
 [node name="GameArena" type="Node2D"]
@@ -11,9 +14,14 @@
 [node name="Player" parent="." instance=ExtResource("1_pwy2h")]
 position = Vector2(234, 434)
 
-[node name="GameManager" type="Node2D" parent="." node_paths=PackedStringArray("player")]
+[node name="GameManager" type="Node2D" parent="." node_paths=PackedStringArray("player", "hud")]
 script = ExtResource("7_twta3")
 player = NodePath("../Player")
+hud = NodePath("../HUD")
 xp_gem_scene = ExtResource("3_morgh")
 worm_scene = ExtResource("3_yce1c")
 tentacle_scene = ExtResource("3_pou1h")
+sfx_gem_collect = ExtResource("6_21h33")
+sfx_level_up = ExtResource("7_rsku2")
+
+[node name="HUD" parent="." instance=ExtResource("6_yce1c")]
