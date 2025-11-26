@@ -1,13 +1,18 @@
-[gd_scene load_steps=10 format=3 uid="uid://dwej7bkquja7q"]
+[gd_scene load_steps=15 format=3 uid="uid://dwej7bkquja7q"]
 
 [ext_resource type="PackedScene" uid="uid://bd7kff53flqov" path="res://scenes/player.tscn" id="1_pwy2h"]
 [ext_resource type="PackedScene" uid="uid://8478shn6lyvm" path="res://scenes/experience_gem.tscn" id="3_morgh"]
 [ext_resource type="PackedScene" uid="uid://dxtuuu5p6dmna" path="res://scenes/tentacle_enemy.tscn" id="3_pou1h"]
 [ext_resource type="PackedScene" uid="uid://e8475puax3vh" path="res://scenes/worm_enemy.tscn" id="3_yce1c"]
+[ext_resource type="PackedScene" uid="uid://dgycjwf73yv6g" path="res://scenes/health_potion.tscn" id="4_5ou4u"]
 [ext_resource type="AudioStream" uid="uid://cl6b1r0pcyq4o" path="res://sfx/Gem.wav" id="6_21h33"]
 [ext_resource type="PackedScene" uid="uid://ccj0lf23epxjs" path="res://scenes/hud.tscn" id="6_yce1c"]
+[ext_resource type="Script" uid="uid://ddr1v08mn5idp" path="res://scripts/upgrade_card.gd" id="6_yy833"]
+[ext_resource type="Resource" uid="uid://dbglqdxbmq1x7" path="res://resources/attack_speed.tres" id="7_5ou4u"]
 [ext_resource type="AudioStream" uid="uid://bhg6ghwe66vwu" path="res://sfx/LevelUp.wav" id="7_rsku2"]
 [ext_resource type="Script" uid="uid://d371yfbg13lwi" path="res://scripts/game_manager.gd" id="7_twta3"]
+[ext_resource type="Resource" uid="uid://bfjwricqud8m5" path="res://resources/damage_up.tres" id="8_qjhlg"]
+[ext_resource type="Resource" uid="uid://bhjixp1q06j2w" path="res://resources/move_speed.tres" id="9_408pm"]
 [ext_resource type="PackedScene" uid="uid://dnhm3xro1q36t" path="res://scenes/level_up_menu.tscn" id="9_rsku2"]
 
 [node name="GameArena" type="Node2D"]
@@ -20,8 +25,10 @@ script = ExtResource("7_twta3")
 player = NodePath("../Player")
 hud = NodePath("../HUD")
 xp_gem_scene = ExtResource("3_morgh")
+health_potion_scene = ExtResource("4_5ou4u")
 worm_scene = ExtResource("3_yce1c")
 tentacle_scene = ExtResource("3_pou1h")
+available_upgrades = Array[ExtResource("6_yy833")]([ExtResource("7_5ou4u"), ExtResource("8_qjhlg"), ExtResource("9_408pm")])
 sfx_gem_collect = ExtResource("6_21h33")
 sfx_level_up = ExtResource("7_rsku2")
 

@@ -18,7 +18,7 @@ func _input(event):
 	# Verifica especificamente o Botão A do Xbox (Índice 0) para selecionar
 	if event is InputEventJoypadButton and event.pressed and event.button_index == JOY_BUTTON_A:
 		_select_focused_card()
-		get_viewport().set_input_as_handled() # Impede que o botão faça outra coisa no jogo
+		get_viewport().set_input_as_handled() 
 
 	# Fallback para teclado (Enter)
 	if event is InputEventKey and event.pressed and event.keycode == KEY_ENTER:
@@ -26,10 +26,8 @@ func _input(event):
 		get_viewport().set_input_as_handled()
 
 func _select_focused_card():
-	# Descobre qual botão tem o foco agora (navegado pelo direcional)
 	var focused_node = get_viewport().gui_get_focus_owner()
 	
-	# Se o foco estiver em uma das nossas cartas, simula o clique
 	if focused_node in cards:
 		focused_node.pressed.emit()
 
@@ -44,16 +42,23 @@ func show_options(options: Array):
 			continue
 			
 		btn.show()
-		var upgrade_data = options[i]
 		
-		btn.text = upgrade_data["title"] + "\n\n" + upgrade_data["description"]
+		# AQUI MUDOU: Agora 'options' é uma lista de Recursos (UpgradeCard)
+		# Acessamos as propriedades com ponto (.) em vez de ["chave"]
+		var card_data: UpgradeCard = options[i]
+		
+		btn.text = card_data.title + "\n\n" + card_data.description
+		
+		# Se tiver ícone, pode setar também:
+		# btn.icon = card_data.icon
 		
 		if btn.pressed.is_connected(_on_card_selected):
 			btn.pressed.disconnect(_on_card_selected)
 		
-		btn.pressed.connect(_on_card_selected.bind(upgrade_data["id"]))
+		# Passamos o ID do recurso para o GameManager saber o que aplicar
+		btn.pressed.connect(_on_card_selected.bind(card_data.id))
 		
-		# Foca no primeiro botão para permitir navegação imediata pelo direcional
+		# Foca no primeiro botão
 		if i == 0:
 			btn.grab_focus()
 
