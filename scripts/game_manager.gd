@@ -1,13 +1,12 @@
 extends Node
 
-# SINAIS PARA A UI
 signal level_up_options_ready(options) 
 
-# REFERÊNCIAS GERAIS
+# REFERÊNCIAS
 @export var player: Node2D
 @export var hud: CanvasLayer 
 @export var xp_gem_scene: PackedScene 
-@export var health_potion_scene: PackedScene # Nova referência para a poção
+@export var health_potion_scene: PackedScene
 
 # INIMIGOS
 @export var worm_scene: PackedScene     
@@ -16,10 +15,12 @@ signal level_up_options_ready(options)
 # PROGRESSÃO
 @export var base_spawn_rate: float = 2.0 
 @export var tentacle_frequency: int = 20 
-@export var potion_spawn_interval: float = 30.0 # Tempo entre spawns de cura (segundos)
+@export var potion_spawn_interval: float = 30.0
 
-# SISTEMA DE UPGRADES (RESOURCES)
-@export var available_upgrades: Array[UpgradeCard]
+# SISTEMA DE UPGRADES (SCRIPT-ONLY)
+# Arraste os arquivos .gd (Scripts) das cartas para cá!
+# Mudei de Array[GDScript] para Array[Script] para corrigir o erro de atribuição no Editor.
+@export var available_upgrades_scripts: Array[Script]
 
 # ÁUDIO
 @export_group("Audio FX")
@@ -29,7 +30,7 @@ signal level_up_options_ready(options)
 # ESTADO DO JOGO
 var game_time: float = 0.0
 var spawn_timer: float = 0.0
-var potion_timer: float = 0.0 # Timer para a cura
+var potion_timer: float = 0.0
 var spawn_counter: int = 0 
 
 # SISTEMA DE XP
@@ -58,14 +59,14 @@ func _process(delta):
 	
 	game_time += delta
 	
-	# --- SPAWN DE INIMIGOS ---
+	# SPAWN INIMIGOS
 	spawn_timer -= delta
 	if spawn_timer <= 0:
 		spawn_wave()
 		var difficulty_factor = 1.0 + (game_time / 60.0) 
 		spawn_timer = base_spawn_rate / difficulty_factor
 
-	# --- SPAWN DE CURA (NOVO) ---
+	# SPAWN CURA
 	potion_timer += delta
 	if potion_timer >= potion_spawn_interval:
 		spawn_health_potion()
@@ -99,19 +100,17 @@ func spawn_wave():
 	
 	get_parent().add_child(enemy)
 
+# --- FUNÇÃO DE SPAWN CURA (RESTAURADA) ---
 func spawn_health_potion():
 	if not health_potion_scene: return
 	
 	var potion = health_potion_scene.instantiate()
-	
-	# Spawna num raio aleatório perto do player (visível ou logo fora da tela)
 	var angle = randf() * TAU
 	var distance = randf_range(100.0, 500.0) 
 	var pos = player.global_position + Vector2(cos(angle), sin(angle)) * distance
 	
 	potion.global_position = pos
 	get_tree().current_scene.call_deferred("add_child", potion)
-	print("Poção spawnada!")
 
 # --- SISTEMA DE XP ---
 func spawn_xp(pos: Vector2, amount: int):
@@ -143,50 +142,47 @@ func level_up():
 	if hud and hud.has_method("update_xp"):
 		hud.update_xp(current_xp, xp_to_next_level, current_level)
 	
-	# Pausa e abre menu
 	get_tree().paused = true
+	
+	# Gera as opções instanciando os scripts
 	var options = get_random_upgrades(3)
 	level_up_options_ready.emit(options)
 
-# --- LÓGICA DE UPGRADES ---
+# --- LÓGICA DE UPGRADES (SCRIPT BASED) ---
 
 func get_random_upgrades(amount: int) -> Array[UpgradeCard]:
-	var pool = available_upgrades.duplicate()
-	pool.shuffle()
-	return pool.slice(0, min(amount, pool.size()))
-
-func get_upgrade_by_id(id: String) -> UpgradeCard:
-	for card in available_upgrades:
-		if card.id == id:
-			return card
-	return null
+	var pool_scripts = available_upgrades_scripts.duplicate()
+	pool_scripts.shuffle()
+	
+	var selected_scripts = pool_scripts.slice(0, min(amount, pool_scripts.size()))
+	var instances: Array[UpgradeCard] = []
+	
+	# Instancia cada script para ler os dados do _init()
+	for script in selected_scripts:
+		var card_instance = script.new()
+		if card_instance is UpgradeCard:
+			instances.append(card_instance)
+			
+	return instances
 
 func apply_upgrade(upgrade_id: String):
-	var card = get_upgrade_by_id(upgrade_id)
-	if not card:
-		print("ERRO: Upgrade não encontrado no database: ", upgrade_id)
-		get_tree().paused = false
-		return
-
-	print("Aplicando Upgrade: ", card.title, " | Valor: ", card.value)
+	# Procura o script correto pelo ID
+	# Isso exige instanciar para checar o ID, o que não é super otimizado 
+	# mas para 30-50 cartas num menu de pausa é imperceptível.
 	
-	match card.id:
-		"damage_up":
-			# Soma valor fixo (ex: +5)
-			player.attack_damage += int(card.value)
-			
-		"attack_speed":
-			# Reduz cooldown por porcentagem (ex: 0.15 = 15%)
-			# Limita para não ficar instantâneo (min 0.05s)
-			var reduction = 1.0 - card.value
-			player.attack_cooldown = max(0.05, player.attack_cooldown * reduction)
-			
-		"move_speed":
-			# Soma valor fixo ou porcentagem (aqui somando fixo, ex: +50)
-			player.speed += card.value
-			
-		# Adicione novos casos aqui conforme criar novos arquivos .tres
-		# "max_health": player.max_health += int(card.value)
+	var found_card = null
+	
+	for script in available_upgrades_scripts:
+		var temp_instance = script.new()
+		if temp_instance.id == upgrade_id:
+			found_card = temp_instance
+			break
+	
+	if found_card:
+		print("Aplicando Upgrade: ", found_card.title)
+		found_card.apply_upgrade(player)
+	else:
+		print("ERRO: Script da carta não encontrado para ID: ", upgrade_id)
 			
 	get_tree().paused = false
 

@@ -4,11 +4,12 @@
 
 [sub_resource type="Curve" id="Curve_spd53"]
 _limits = [0.0, 4.52952, 0.0, 1.0]
-_data = [Vector2(0, 0), 0.0, 9.4103, 0, 0, Vector2(0.525301, 3.3073), 5.38047, 5.38047, 0, 0, Vector2(0.995181, 3.98631), 0.0, 0.0, 0, 0]
+_data = [Vector2(0, 0), 0.0, 6.92319, 0, 0, Vector2(0.819277, 1.55904), 5.45463, 5.45463, 0, 0, Vector2(0.995181, 2.00593), 0.0, 0.0, 0, 0]
 point_count = 3
 
 [node name="Tentacle" type="Node2D"]
 script = ExtResource("1_spd53")
+length = 10
 thickness_curve = SubResource("Curve_spd53")
 cell_health = 30
 idle_wave_speed = 20.0
