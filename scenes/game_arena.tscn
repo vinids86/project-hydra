@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://dwej7bkquja7q"]
+[gd_scene load_steps=10 format=3 uid="uid://dwej7bkquja7q"]
 
 [ext_resource type="PackedScene" uid="uid://bd7kff53flqov" path="res://scenes/player.tscn" id="1_pwy2h"]
 [ext_resource type="PackedScene" uid="uid://8478shn6lyvm" path="res://scenes/experience_gem.tscn" id="3_morgh"]
@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" uid="uid://ccj0lf23epxjs" path="res://scenes/hud.tscn" id="6_yce1c"]
 [ext_resource type="AudioStream" uid="uid://bhg6ghwe66vwu" path="res://sfx/LevelUp.wav" id="7_rsku2"]
 [ext_resource type="Script" uid="uid://d371yfbg13lwi" path="res://scripts/game_manager.gd" id="7_twta3"]
+[ext_resource type="PackedScene" uid="uid://dnhm3xro1q36t" path="res://scenes/level_up_menu.tscn" id="9_rsku2"]
 
 [node name="GameArena" type="Node2D"]
 
@@ -25,3 +26,5 @@ sfx_gem_collect = ExtResource("6_21h33")
 sfx_level_up = ExtResource("7_rsku2")
 
 [node name="HUD" parent="." instance=ExtResource("6_yce1c")]
+
+[node name="LevelUpMenu" parent="." instance=ExtResource("9_rsku2")]
