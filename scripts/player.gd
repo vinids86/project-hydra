@@ -1,11 +1,11 @@
 extends CharacterBody2D
 
-signal health_changed(current, max) # Sinal novo para a HUD
+signal health_changed(current, max)
 
 # --- CONFIGURAÇÕES GERAIS ---
 @export var speed: float = 400.0
-@export var max_health: int = 100 # Novo: Define o máximo
-@onready var health: int = max_health # Atual começa igual ao máximo
+@export var max_health: int = 100
+@onready var health: int = max_health
 @export var friction: float = 15.0 
 
 # --- DASH ---
@@ -15,11 +15,21 @@ signal health_changed(current, max) # Sinal novo para a HUD
 
 # --- ATAQUE ---
 @export var attack_damage: int = 10
-@export var attack_duration: float = 0.25
-@export var attack_cooldown: float = 0.1
+@export var attack_duration: float = 0.25 
+@export var attack_cooldown: float = 0.1  
 @export var attack_range: float = 70.0
 @export var attack_offset: float = 60.0
 @export var attack_impulse: float = 600.0 
+
+# --- CHAIN ATTACK (ECOS DA LANÇA) ---
+@export_group("Chain Attack")
+@export var attack_chain_level: int = 0      
+@export var attack_chain_spacing: float = 70.0 
+@export var attack_chain_delay: float = 0.15
+
+# --- RANDOM ATTACK (CAOS CONTROLADO) ---
+@export_group("Random Attack")
+@export var extra_attack_count: int = 0 
 
 # --- STAGGER & SHAKE ---
 @export var stagger_duration: float = 0.2 
@@ -51,12 +61,11 @@ var last_faced_direction: Vector2 = Vector2.RIGHT
 var current_shake_strength: float = 0.0
 @onready var camera = $Camera2D 
 
-# Debug
-var debug_attack_active: bool = false
+# VISUAIS MÚLTIPLOS
+var active_visuals: Array = []
 var attack_visual_angle: float = 0.0 
 
 func _ready():
-	# Avisa a HUD assim que o jogo começa
 	health_changed.emit(health, max_health)
 
 func _process(delta):
@@ -118,26 +127,51 @@ func start_attack():
 	velocity = attack_dir * attack_impulse
 	
 	play_sfx(sfx_attack, 0.9, 1.1)
-	perform_hitbox_check(attack_dir)
 	
-	debug_attack_active = true
+	# 1. Ataque Principal
+	perform_hitbox_check(attack_dir, attack_offset)
+	
+	# 2. Ataques Extras (Caos)
+	for i in range(extra_attack_count):
+		var random_angle = randf() * TAU 
+		var random_dir = Vector2(cos(random_angle), sin(random_angle))
+		perform_hitbox_check(random_dir, attack_offset)
+	
+	# 3. Ecos (Cadeia)
+	if attack_chain_level > 0:
+		_run_chain_attack(attack_dir)
+	
 	var original_modulate = modulate
 	modulate = Color(1.5, 1.5, 0)
 	
+	# Root durante animação
 	await get_tree().create_timer(attack_duration).timeout
 	
 	modulate = original_modulate
-	debug_attack_active = false
 	
+	# Espera o Cooldown definido (que pode ter sido aumentado pelas cartas)
 	if current_state == State.ATTACK:
 		await get_tree().create_timer(attack_cooldown).timeout
 		current_state = State.MOVE
+
+# Lógica Assíncrona dos Ecos
+func _run_chain_attack(dir: Vector2):
+	for i in range(attack_chain_level):
+		await get_tree().create_timer(attack_chain_delay).timeout
+		if not is_instance_valid(self): return
+		
+		var chain_dist = attack_offset + ((i + 1) * attack_chain_spacing)
+		perform_hitbox_check(dir, chain_dist)
+		play_sfx(sfx_attack, 1.2 + (i * 0.1), 1.3 + (i * 0.1))
 
 func state_attack(delta):
 	velocity = velocity.move_toward(Vector2.ZERO, friction * 100 * delta)
 	move_and_slide()
 
-func perform_hitbox_check(dir: Vector2):
+func perform_hitbox_check(dir: Vector2, offset_dist: float):
+	var attack_center = global_position + (dir * offset_dist)
+	add_attack_visual(attack_center - global_position, attack_range)
+	
 	var space_state = get_world_2d().direct_space_state
 	var query = PhysicsShapeQueryParameters2D.new()
 	var shape = CircleShape2D.new()
@@ -147,9 +181,7 @@ func perform_hitbox_check(dir: Vector2):
 	query.collision_mask = 1
 	query.collide_with_areas = true
 	query.collide_with_bodies = false
-	
-	var center = global_position + (dir * attack_offset)
-	query.transform = Transform2D(0, center)
+	query.transform = Transform2D(0, attack_center)
 	
 	var results = space_state.intersect_shape(query)
 	var hit_something = false
@@ -165,6 +197,15 @@ func perform_hitbox_check(dir: Vector2):
 		apply_shake(5.0)
 		apply_hit_stop(hit_stop_duration_hit)
 		play_sfx(sfx_hit, 0.8, 1.0)
+
+func add_attack_visual(local_pos: Vector2, radius: float):
+	var visual_data = {
+		"pos": local_pos,
+		"radius": radius,
+		"color": Color(1.5, 1.5, 0, 0.5)
+	}
+	active_visuals.append(visual_data)
+	get_tree().create_timer(0.15).timeout.connect(func(): active_visuals.erase(visual_data))
 
 # --- ESTADO 3: DASH ---
 func start_dash(dir):
@@ -200,7 +241,6 @@ func take_damage(amount):
 	health -= amount
 	print("Dano! Vida: ", health)
 	
-	# Atualiza a HUD
 	health_changed.emit(health, max_health)
 	
 	play_sfx(sfx_hurt, 0.8, 1.2)
@@ -248,8 +288,6 @@ func _draw():
 		var pointer_end = last_faced_direction.normalized() * 40
 		draw_line(Vector2.ZERO, pointer_end, Color(1, 1, 1, 0.3), 2.0)
 	
-	if debug_attack_active:
-		var dir = Vector2.RIGHT.rotated(attack_visual_angle)
-		var center = dir * attack_offset
-		draw_circle(center, attack_range, Color(1, 1, 0, 0.5))
-		draw_line(Vector2.ZERO, center, Color(1, 1, 0, 0.8), 2.0)
+	for v in active_visuals:
+		draw_circle(v.pos, v.radius, v.color)
+		draw_arc(v.pos, v.radius, 0, TAU, 32, Color(1, 1, 0, 0.8), 2.0)

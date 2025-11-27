@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3 uid="uid://dwej7bkquja7q"]
+[gd_scene load_steps=17 format=3 uid="uid://dwej7bkquja7q"]
 
 [ext_resource type="PackedScene" uid="uid://bd7kff53flqov" path="res://scenes/player.tscn" id="1_pwy2h"]
 [ext_resource type="PackedScene" uid="uid://8478shn6lyvm" path="res://scenes/experience_gem.tscn" id="3_morgh"]
@@ -16,7 +16,6 @@
 [ext_resource type="Script" uid="uid://ckj3qo36nksml" path="res://resources/cards/attack_range_upgrade.gd" id="11_408pm"]
 [ext_resource type="Script" uid="uid://d3ilvgtrsi1tx" path="res://resources/cards/health_upgrade.gd" id="11_qjhlg"]
 [ext_resource type="Script" uid="uid://ri2d18xvokfv" path="res://resources/cards/chain_attack_upgrade.gd" id="12_408pm"]
-[ext_resource type="Script" uid="uid://dbsfyx1nrl712" path="res://resources/cards/random_attack_upgrade.gd" id="13_t6iyt"]
 
 [node name="GameArena" type="Node2D"]
 
@@ -31,7 +30,7 @@ xp_gem_scene = ExtResource("3_morgh")
 health_potion_scene = ExtResource("4_5ou4u")
 worm_scene = ExtResource("3_yce1c")
 tentacle_scene = ExtResource("3_pou1h")
-available_upgrades_scripts = Array[Script]([ExtResource("11_qjhlg"), ExtResource("8_5ou4u"), ExtResource("9_qjhlg"), ExtResource("10_408pm"), ExtResource("11_408pm"), ExtResource("12_408pm"), ExtResource("13_t6iyt")])
+available_upgrades_scripts = Array[Script]([ExtResource("11_qjhlg"), ExtResource("8_5ou4u"), ExtResource("9_qjhlg"), ExtResource("10_408pm"), ExtResource("11_408pm"), ExtResource("12_408pm")])
 sfx_gem_collect = ExtResource("6_21h33")
 sfx_level_up = ExtResource("7_rsku2")
 
